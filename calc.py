@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 OP_LIST = {'+', '-', '*', '/'}
 
@@ -22,6 +22,12 @@ class TokenVal:
 class Calc:
 
     def __init__(self, program: str = None) -> None:
+        """
+        Initialise a Calc instance/object
+
+        Args:
+            program (str, optional): Program to be interpreted. Defaults to None.
+        """
         self.program = program
         self.stack = []
         self.lexed = []
@@ -33,14 +39,30 @@ class Calc:
             '/': lambda a, b: b / a
         }
 
-    def tokenise(self, token: str) -> Token:
-        if token.isdigit():
+    def tokenise(self, lexeme: str) -> Token:
+        """
+        Helper function for mapping lexeme or characters or
+        strings into their respective token equivalent
+
+        Args:
+            lexeme (str): string to be mapped to token
+
+        Returns:
+            Token: resulting token of the lexeme
+        """
+        if lexeme.isdigit():
             return Token.NUMBER
-        elif token in OP_LIST:
+        elif lexeme in OP_LIST:
             return Token.BINARY_OP
 
-    def lex(self):
-        tokens = []
+    def lex(self) -> List[TokenVal]:
+        """
+        Lexes the program given
+        """
+        
+        tokens: List[TokenVal] = []
+
+        program_length = len(self.program)
 
         temp_digit = []
         digit_flag = False
@@ -61,13 +83,19 @@ class Calc:
         self.lexed = tokens
         return tokens
 
-
     def eval(self) -> float:
+        """
+        Iterate through the lexed program and evaluates it
+
+        Returns:
+            float: Result of the program
+        """
         self.stack.clear()
         if self.program is None:
             print("No program loaded")
             return
 
+        self.program = self.program + " "
         self.lex()
 
         for type_, val in self.lexed:
@@ -83,9 +111,13 @@ class Calc:
 
         return self.stack[0]
 
-    def repl(self):
-        while self.program != "q":
-            self.program = input("> ")
+    def repl(self) -> None:
+        """
+        Runs a REPL which evaluates programs and expressions
+        """
+        print("WELCOME TO CALCULATOR LANGUAGE!")
+        while (program := input("> ")) != "q":
+            self.program = program
             print(self.eval(), end="\n\n")
 
 
