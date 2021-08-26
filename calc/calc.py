@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from dataclasses import dataclass
+from collections import deque
 from typing import Any, List, Optional
+
 
 OP_LIST = {
     '+': 1, 
@@ -16,15 +18,17 @@ class Token(Enum):
     NUMBER = auto() 
     UNARY_OP = auto()
     BINARY_OP = auto()
+    L_PAREN = auto()
+    R_PAREN = auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class TokenVal:
-    token_type: Token
+    type_: Token
     val: Any
 
     def __iter__(self):
-        return iter((self.token_type, self.val))
+        return iter((self.type_, self.val))
 
 class Calc:
 
@@ -48,6 +52,10 @@ class Calc:
             '%': lambda a, b: b % a
         }
 
+        if program is not None:
+            self.lex()
+            
+
     def tokenise(self, lexeme: str) -> Optional[Token]:
         """
         Helper function for mapping lexeme or characters or
@@ -63,6 +71,10 @@ class Calc:
             return Token.NUMBER
         elif lexeme in OP_LIST:
             return Token.BINARY_OP
+        elif lexeme == "(":
+            return Token.L_PAREN
+        elif lexeme == ")":
+            return Token.R_PAREN
 
     def lex(self, program: str = None, inplace: bool = True) -> List[TokenVal]:
         """
@@ -101,12 +113,61 @@ class Calc:
                 if token is Token.BINARY_OP:
                     tokens.append(TokenVal(Token.BINARY_OP, char))
 
+                if token in (Token.L_PAREN, Token.R_PAREN):
+                    tokens.append(TokenVal(token, char)) 
+
         if inplace:
             self.lexed = tokens
 
         return tokens
 
-    def eval(self) -> float:
+    def shunt(self, program: str = None, inplace: bool = True) -> List:
+        """Uses the result of the lexer to generate 
+        expressions from infix to postfix
+
+        Args:
+            program (str, optional): program to be evaluated. Defaults to None.
+            inplace (bool, optional): flag to check whether to modify self.shunted or not. Defaults to True.
+
+        Returns:
+            List: [description]
+        """
+        
+        if program is None:
+            lexed = self.lex()
+        else:
+            lexed = self.lex(program=program)
+        
+        operators = []
+        output = deque()
+
+        for token in lexed:
+
+            if token.type_ is Token.NUMBER:
+                output.append(token)
+
+            elif token.type_ is Token.BINARY_OP:
+                while operators and operators[-1].type_ in OP_LIST and OP_LIST[operators[-1].val] > OP_LIST[token.val]:
+                    output.append(operators.pop())
+                operators.append(token)
+
+            elif token.type_ is Token.L_PAREN:
+                operators.append(token)
+
+            elif token.type_ is Token.R_PAREN:
+                while operators and operators[-1].val != "(":
+                    output.append(operators.pop()) 
+                operators.pop()
+        
+        while operators:
+            output.append(operators.pop())
+
+        if inplace:
+            self.shunted = list(output)
+
+        return output
+
+    def eval(self, infix: bool = True) -> float:
         """
         Iterate through the lexed program and evaluates it
 
@@ -119,8 +180,13 @@ class Calc:
             return
 
         self.lex(inplace=True)
+        if infix is True:
+            self.shunt()
+            processed = self.shunted
+        else:
+            processed = self.lexed
 
-        for type_, val in self.lexed:
+        for type_, val in processed:
             if type_ is Token.NUMBER:
                 self.stack.append(val)
             else:
@@ -133,24 +199,11 @@ class Calc:
 
         return self.stack[0]
 
-    def repl(self) -> None:
+    def repl(self, infix=True) -> None:
         """
         Runs a REPL which evaluates programs and expressions
         """
         print("WELCOME TO CALCULATOR LANGUAGE!")
         while (program := input("> ")) != "q":
             self.program = program
-            print(self.eval(), end="\n\n")
-
-
-
-
-if __name__ == "__main__":
-    program = "2 32 + 2 * 12 /"
-    calc = Calc()
-    # print(calc.eval())
-    # calc.repl()
-
-    calc.program = program
-    # print(calc.eval())
-    calc.repl()
+            print(self.eval(infix=True), end="\n\n")
