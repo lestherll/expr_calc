@@ -2,7 +2,12 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from typing import Any, List, Optional
 
-OP_LIST = {'+', '-', '*', '/'}
+OP_LIST = {
+    '+': 1, 
+    '-': 1, 
+    '*': 2, 
+    '/': 2
+}
 
 
 class Token(Enum):
@@ -55,18 +60,22 @@ class Calc:
         elif lexeme in OP_LIST:
             return Token.BINARY_OP
 
-    def lex(self) -> List[TokenVal]:
+    def lex(self, program: str = None, inplace: bool = False) -> List[TokenVal]:
         """
         Lexes the program given
         """
-        
+
+        if program is not None and inplace:
+            program_to_use = program
+            self.program = program
+        else:
+            program_to_use = self.program
+
         tokens: List[TokenVal] = []
-
-        program_length = len(self.program)
-
+        program_length = len(program_to_use)
         temp_digit = []
         digit_flag = False
-        for i, char in enumerate(self.program):
+        for i, char in enumerate(program_to_use):
             token = self.tokenise(char)
             if token is Token.NUMBER:
                 temp_digit.append(char)
@@ -85,7 +94,9 @@ class Calc:
                 if token is Token.BINARY_OP:
                     tokens.append(TokenVal(Token.BINARY_OP, char))
 
-        self.lexed = tokens
+        if inplace:
+            self.lexed = tokens
+
         return tokens
 
     def eval(self) -> float:
@@ -100,7 +111,7 @@ class Calc:
             print("No program loaded")
             return
 
-        self.lex()
+        self.lex(inplace=True)
 
         for type_, val in self.lexed:
             if type_ is Token.NUMBER:
