@@ -77,8 +77,14 @@ class Calc:
             return Token.R_PAREN
 
     def lex(self, program: str = None, inplace: bool = True) -> List[TokenVal]:
-        """
-        Lexes the program given
+        """Lexes the program given or at self.program
+
+        Args:
+            program (str, optional): Optional program. Defaults to None.
+            inplace (bool, optional): Modify self.program or not. Defaults to True.
+
+        Returns:
+            List[TokenVal]: [description]
         """
 
         if program is not None and inplace:
@@ -121,7 +127,7 @@ class Calc:
 
         return tokens
 
-    def shunt(self, program: str = None, inplace: bool = True) -> List:
+    def shunt(self, program: str = None, inplace: bool = True) -> List[TokenVal]:
         """Uses the result of the lexer to generate 
         expressions from infix to postfix
 
