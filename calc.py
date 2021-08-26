@@ -60,7 +60,7 @@ class Calc:
         elif lexeme in OP_LIST:
             return Token.BINARY_OP
 
-    def lex(self, program: str = None, inplace: bool = False) -> List[TokenVal]:
+    def lex(self, program: str = None, inplace: bool = True) -> List[TokenVal]:
         """
         Lexes the program given
         """
