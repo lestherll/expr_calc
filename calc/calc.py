@@ -6,7 +6,9 @@ OP_LIST = {
     '+': 1, 
     '-': 1, 
     '*': 2, 
-    '/': 2
+    '/': 2,
+    '%': 2,
+    '^': 3
 }
 
 
@@ -41,7 +43,9 @@ class Calc:
             '+': lambda a, b: a + b,
             '*': lambda a, b: a * b,
             '-': lambda a, b: b - a,
-            '/': lambda a, b: b / a
+            '/': lambda a, b: b / a,
+            '^': lambda a, b: b ** a,
+            '%': lambda a, b: b % a
         }
 
     def tokenise(self, lexeme: str) -> Optional[Token]:
@@ -87,9 +91,12 @@ class Calc:
 
             else:
                 if digit_flag:
-                    tokens.append(TokenVal(Token.NUMBER, float("".join(temp_digit))))
-                    temp_digit.clear()
-                    digit_flag = False
+                    if char == ".":
+                        temp_digit.append(char)
+                    else:
+                        tokens.append(TokenVal(Token.NUMBER, float("".join(temp_digit))))
+                        temp_digit.clear()
+                        digit_flag = False
                 
                 if token is Token.BINARY_OP:
                     tokens.append(TokenVal(Token.BINARY_OP, char))
