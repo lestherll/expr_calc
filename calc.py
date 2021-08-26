@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any, List, Optional
 
 OP_LIST = {'+', '-', '*', '/'}
 
@@ -39,7 +39,7 @@ class Calc:
             '/': lambda a, b: b / a
         }
 
-    def tokenise(self, lexeme: str) -> Token:
+    def tokenise(self, lexeme: str) -> Optional[Token]:
         """
         Helper function for mapping lexeme or characters or
         strings into their respective token equivalent
@@ -69,8 +69,13 @@ class Calc:
         for i, char in enumerate(self.program):
             token = self.tokenise(char)
             if token is Token.NUMBER:
-                digit_flag = True
                 temp_digit.append(char)
+
+                # checks if current char which is a number is the last char
+                if i+1 == program_length:
+                    tokens.append(TokenVal(Token.NUMBER, float("".join(temp_digit))))
+                digit_flag = True
+
             else:
                 if digit_flag:
                     tokens.append(TokenVal(Token.NUMBER, float("".join(temp_digit))))
@@ -95,7 +100,6 @@ class Calc:
             print("No program loaded")
             return
 
-        self.program = self.program + " "
         self.lex()
 
         for type_, val in self.lexed:
