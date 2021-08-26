@@ -1,5 +1,5 @@
 from typing import List
-from calc import Calc, Token, TokenVal
+from calc.calc import Calc, Token, TokenVal
 
 from unittest import TestCase
 
