@@ -41,7 +41,9 @@ class Calc:
         """
         self.program = program
         self.stack = []
+
         self.lexed = []
+        self.shunted = []
 
         self.op_map = {
             '+': lambda a, b: a + b,
@@ -51,10 +53,6 @@ class Calc:
             '^': lambda a, b: b ** a,
             '%': lambda a, b: b % a
         }
-
-        if program is not None:
-            self.lex()
-            
 
     def tokenise(self, lexeme: str) -> Optional[Token]:
         """
@@ -87,9 +85,10 @@ class Calc:
             List[TokenVal]: [description]
         """
 
-        if program is not None and inplace:
+        if program is not None:
             program_to_use = program
-            self.program = program
+            if inplace:
+                self.program = program
         else:
             program_to_use = self.program
 
@@ -139,13 +138,16 @@ class Calc:
             List: [description]
         """
         
-        if program is None:
-            lexed = self.lex()
+        if program is not None:
+            if inplace:
+                lexed = self.lex(program=program)
+            else:
+                lexed = self.lex(program=program, inplace=False)
         else:
-            lexed = self.lex(program=program)
+            lexed = self.lex()
         
         operators = []
-        output = deque()
+        output = []
 
         for token in lexed:
 
@@ -153,7 +155,7 @@ class Calc:
                 output.append(token)
 
             elif token.type_ is Token.BINARY_OP:
-                while operators and operators[-1].type_ in OP_LIST and OP_LIST[operators[-1].val] > OP_LIST[token.val]:
+                while operators and operators[-1].val in OP_LIST and OP_LIST[operators[-1].val] >= OP_LIST[token.val]:
                     output.append(operators.pop())
                 operators.append(token)
 
