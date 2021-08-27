@@ -15,6 +15,13 @@ can run the following command without the comment.
 python -m calc
 ```
 
+Enabling postfix expression mode is also possible. Using infix expressions
+in postfix mode is currently undefined and so is using postfix expressions
+in infix mode.
+```shell
+python -m calc --postfix
+```
+
 ## Features
 - Infix expressions
 - Postfix expressions

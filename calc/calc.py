@@ -214,4 +214,4 @@ class Calc:
         print("WELCOME TO CALCULATOR LANGUAGE!")
         while (program := input("> ")) != "q":
             self.program = program
-            print(self.eval(infix=True), end="\n\n")
+            print(self.eval(infix=infix), end="\n\n")
