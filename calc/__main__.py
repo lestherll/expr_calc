@@ -2,7 +2,6 @@ from .calc import Calc
 import argparse
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description="Interpreter flags")
     parser.add_argument(
         "--postfix",

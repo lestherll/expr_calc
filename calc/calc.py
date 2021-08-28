@@ -2,11 +2,10 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from typing import Any, List, Optional
 
-
 OP_LIST = {
-    '+': 1, 
-    '-': 1, 
-    '*': 2, 
+    '+': 1,
+    '-': 1,
+    '*': 2,
     '/': 2,
     '%': 2,
     '^': 3
@@ -14,7 +13,7 @@ OP_LIST = {
 
 
 class Token(Enum):
-    NUMBER = auto() 
+    NUMBER = auto()
     UNARY_OP = auto()
     BINARY_OP = auto()
     L_PAREN = auto()
@@ -31,7 +30,6 @@ class TokenVal:
 
 
 class Calc:
-
     op_map = {
         '+': lambda a, b: a + b,
         '*': lambda a, b: a * b,
@@ -94,7 +92,7 @@ class Calc:
 
         tokens: List[TokenVal] = []
         program_length = len(self.program)  # will fail if self.program is None as well
-        temp_digit = []     # stack for digit chars and decimal sign
+        temp_digit = []  # stack for digit chars and decimal sign
         digit_flag = False  # flag when digit is encountered
 
         for i, char in enumerate(self.program):
@@ -103,7 +101,7 @@ class Calc:
                 temp_digit.append(char)
 
                 # checks if current char which is a number is the last char
-                if i+1 == program_length:
+                if i + 1 == program_length:
                     tokens.append(TokenVal(Token.NUMBER, float("".join(temp_digit))))
                 digit_flag = True
 
@@ -115,24 +113,24 @@ class Calc:
                         tokens.append(TokenVal(Token.NUMBER, float("".join(temp_digit))))
                         temp_digit.clear()
                         digit_flag = False
-                
+
                 if token is Token.BINARY_OP:
                     if i < program_length and char in Calc.unary_op_map and \
                             (not tokens or tokens[-1].type_ is not Token.NUMBER) and \
-                            self.tokenise(self.program[i+1]) is Token.NUMBER:
+                            self.tokenise(self.program[i + 1]) is Token.NUMBER:
                         temp_digit.append(char)
                     else:
                         tokens.append(TokenVal(Token.BINARY_OP, char))
 
                 if token in (Token.L_PAREN, Token.R_PAREN):
-                    tokens.append(TokenVal(token, char)) 
+                    tokens.append(TokenVal(token, char))
 
-        self.lexed = tokens     # update self.lexed
+        self.lexed = tokens  # update self.lexed
 
         return tokens
 
     def shunt(self, program: str = None) -> List[TokenVal]:
-        """Uses the result of the lexer to generate 
+        """Uses the result of the lexer to generate
         expressions from infix to postfix
 
         Args:
@@ -141,12 +139,12 @@ class Calc:
         Returns:
             List: [description]
         """
-        
+
         if program is not None:
             lexed = self.lex(program=program)
         else:
             lexed = self.lex()
-        
+
         operators = []
         output = []
 
@@ -165,9 +163,9 @@ class Calc:
 
             elif token.type_ is Token.R_PAREN:
                 while operators and operators[-1].val != "(":
-                    output.append(operators.pop()) 
+                    output.append(operators.pop())
                 operators.pop()
-        
+
         while operators:
             output.append(operators.pop())
 

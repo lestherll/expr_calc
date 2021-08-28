@@ -1,63 +1,53 @@
+from dataclasses import dataclass
 from typing import List
-from calc.calc import Calc, Token, TokenVal
+from ..calc.calc import Calc, Token, TokenVal
 
-from unittest import TestCase
+import pytest
 
 
-class TestCalc(TestCase):
+@dataclass(frozen=True)
+class MockProgram:
+    """Contains source code and tokens of the source in a program"""
+    source: str
+    token: List[TokenVal]
 
-    programs = {
-        "one_val": "345",
-        "basic": "2 3 +",
+
+@pytest.fixture
+def programs():
+    return {
+        "one_val": MockProgram(
+            "345",
+            [TokenVal(Token.NUMBER, 345)]
+        ),
+        "basic": MockProgram(
+            "2 3 +",
+            [
+                TokenVal(Token.NUMBER, 2),
+                TokenVal(Token.NUMBER, 3),
+                TokenVal(Token.BINARY_OP, "+")
+            ]
+        )
     }
-    
-    def test_calc_lex_init(self):
-        """Test if program is loaded"""
-        calc: Calc = Calc(program=TestCalc.programs["basic"])
 
-        expected: List[TokenVal] = [
-            TokenVal(Token.NUMBER, 2),
-            TokenVal(Token.NUMBER, 3),
-            TokenVal(Token.BINARY_OP, "+")
-        ]
 
-        self.assertEqual(TestCalc.programs["basic"], calc.program)
+def test_calc_lex_init(programs):
+    """Test if program is loaded"""
+    calc: Calc = Calc(program=programs["basic"].source)
+    assert programs["basic"].source == calc.program
 
-    def test_calc_lex(self):
-        calc: Calc = Calc(program=TestCalc.programs["basic"])
-        actual_tokens: List[TokenVal] = calc.lex()
 
-        expected: List[TokenVal] = [
-            TokenVal(Token.NUMBER, 2),
-            TokenVal(Token.NUMBER, 3),
-            TokenVal(Token.BINARY_OP, "+")
-        ]
-        self.assertListEqual(expected, actual_tokens)
-        self.assertListEqual(expected, calc.lexed)
+def test_calc_lex(programs):
+    calc: Calc = Calc(program=programs["basic"].source)
+    actual_tokens: List[TokenVal] = calc.lex()
 
-    def test_calc_lex_external(self):
-        """"""
-        calc: Calc = Calc()
-        calc.lex(program=TestCalc.programs["basic"])
+    assert programs["basic"].token == actual_tokens
+    assert programs["basic"].token == calc.lexed
 
-        expected: List[TokenVal] = [
-            TokenVal(Token.NUMBER, 2),
-            TokenVal(Token.NUMBER, 3),
-            TokenVal(Token.BINARY_OP, "+")
-        ]
-        self.assertEqual(TestCalc.programs["basic"], calc.program)
-        self.assertListEqual(expected, calc.lexed)
 
-    # def
+def test_calc_lex_external(programs):
+    """"""
+    calc: Calc = Calc()
+    calc.lex(program=programs["basic"].source)
 
-    # def test_calc_lex_external_not_inplace(self):
-    #     calc: Calc = Calc()
-    #     calc.lex(program=TestCalc.programs["basic"])
-    #
-    #     expected: List[TokenVal] = [
-    #         TokenVal(Token.NUMBER, 2),
-    #         TokenVal(Token.NUMBER, 3),
-    #         TokenVal(Token.BINARY_OP, "+")
-    #     ]
-    #
-    #     self.assertFalse(calc.lexed)
+    assert programs["basic"].source == calc.program
+    assert programs["basic"].token == calc.lexed
