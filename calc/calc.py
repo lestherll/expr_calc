@@ -214,6 +214,7 @@ class Calc:
         Runs a REPL which evaluates programs and expressions
         """
         print("WELCOME TO CALCULATOR LANGUAGE!")
-        while (program := input("> ")) != "q":
-            self.program = program
+        self.program = input("> ")
+        while self.program != "q":
             print(self.eval(infix=infix), end="\n\n")
+            self.program = input("> ")
