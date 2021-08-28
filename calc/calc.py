@@ -28,6 +28,9 @@ class TokenVal:
     def __iter__(self):
         return iter((self.type_, self.val))
 
+    def __repr__(self) -> str:
+        return f"{str(self.type_)[6:]}: {self.val}"
+
 
 class Calc:
     op_map = {
