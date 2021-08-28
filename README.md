@@ -1,4 +1,6 @@
 # Calc Interpreter
+[![Python package](https://github.com/lestherll/calc/actions/workflows/main.yml/badge.svg)](https://github.com/lestherll/calc/actions/workflows/main.yml)
+
 A mini-language modeled after a calculator implemented in Python 3.
 The program currently only lexes basic mathematical expressions. It
 supports infix (*using Shunting Yard Algorithm*) and postfix 
