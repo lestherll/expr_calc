@@ -1,6 +1,5 @@
 from enum import Enum, auto
 from dataclasses import dataclass
-from collections import deque
 from typing import Any, List, Optional
 
 
@@ -30,7 +29,22 @@ class TokenVal:
     def __iter__(self):
         return iter((self.type_, self.val))
 
+
 class Calc:
+
+    op_map = {
+        '+': lambda a, b: a + b,
+        '*': lambda a, b: a * b,
+        '-': lambda a, b: b - a,
+        '/': lambda a, b: b / a,
+        '^': lambda a, b: b ** a,
+        '%': lambda a, b: b % a
+    }
+
+    unary_op_map = {
+        '+': lambda a: a,
+        '-': lambda a: -a
+    }
 
     def __init__(self, program: str = None) -> None:
         """
@@ -44,15 +58,6 @@ class Calc:
 
         self.lexed = []
         self.shunted = []
-
-        self.op_map = {
-            '+': lambda a, b: a + b,
-            '*': lambda a, b: a * b,
-            '-': lambda a, b: b - a,
-            '/': lambda a, b: b / a,
-            '^': lambda a, b: b ** a,
-            '%': lambda a, b: b % a
-        }
 
     def tokenise(self, lexeme: str) -> Optional[Token]:
         """
@@ -74,29 +79,25 @@ class Calc:
         elif lexeme == ")":
             return Token.R_PAREN
 
-    def lex(self, program: str = None, inplace: bool = True) -> List[TokenVal]:
+    def lex(self, program: str = None) -> List[TokenVal]:
         """Lexes the program given or at self.program
 
         Args:
             program (str, optional): Optional program. Defaults to None.
-            inplace (bool, optional): Modify self.program or not. Defaults to True.
 
         Returns:
             List[TokenVal]: [description]
         """
 
         if program is not None:
-            program_to_use = program
-            if inplace:
-                self.program = program
-        else:
-            program_to_use = self.program
+            self.program = program
 
         tokens: List[TokenVal] = []
-        program_length = len(program_to_use)
-        temp_digit = []
-        digit_flag = False
-        for i, char in enumerate(program_to_use):
+        program_length = len(self.program)  # will fail if self.program is None as well
+        temp_digit = []     # stack for digit chars and decimal sign
+        digit_flag = False  # flag when digit is encountered
+
+        for i, char in enumerate(self.program):
             token = self.tokenise(char)
             if token is Token.NUMBER:
                 temp_digit.append(char)
@@ -116,33 +117,33 @@ class Calc:
                         digit_flag = False
                 
                 if token is Token.BINARY_OP:
-                    tokens.append(TokenVal(Token.BINARY_OP, char))
+                    if i < program_length and char in Calc.unary_op_map and \
+                            (not tokens or tokens[-1].type_ is not Token.NUMBER) and \
+                            self.tokenise(self.program[i+1]) is Token.NUMBER:
+                        temp_digit.append(char)
+                    else:
+                        tokens.append(TokenVal(Token.BINARY_OP, char))
 
                 if token in (Token.L_PAREN, Token.R_PAREN):
                     tokens.append(TokenVal(token, char)) 
 
-        if inplace:
-            self.lexed = tokens
+        self.lexed = tokens     # update self.lexed
 
         return tokens
 
-    def shunt(self, program: str = None, inplace: bool = True) -> List[TokenVal]:
+    def shunt(self, program: str = None) -> List[TokenVal]:
         """Uses the result of the lexer to generate 
         expressions from infix to postfix
 
         Args:
             program (str, optional): program to be evaluated. Defaults to None.
-            inplace (bool, optional): flag to check whether to modify self.shunted or not. Defaults to True.
 
         Returns:
             List: [description]
         """
         
         if program is not None:
-            if inplace:
-                lexed = self.lex(program=program)
-            else:
-                lexed = self.lex(program=program, inplace=False)
+            lexed = self.lex(program=program)
         else:
             lexed = self.lex()
         
@@ -170,8 +171,7 @@ class Calc:
         while operators:
             output.append(operators.pop())
 
-        if inplace:
-            self.shunted = list(output)
+        self.shunted = list(output)
 
         return output
 
@@ -182,12 +182,13 @@ class Calc:
         Returns:
             float: Result of the program
         """
-        self.stack.clear()
-        if self.program is None:
-            print("No program loaded")
-            return
 
-        self.lex(inplace=True)
+        self.stack.clear()
+
+        if self.program is None:
+            raise ValueError("No program loaded")
+
+        self.lex()
         if infix is True:
             self.shunt()
             processed = self.shunted
@@ -202,8 +203,11 @@ class Calc:
                     if len(self.stack) >= 2:
                         a = self.stack.pop()
                         b = self.stack.pop()
-                        res = self.op_map[val](a, b)
+                        res = Calc.op_map[val](a, b)
                         self.stack.append(res)
+
+                    # elif len(self.stack) == 1 and val in "-+":
+                    #     self.stack.append(Calc.unary_op_map[val](self.stack.pop()))
 
         return self.stack[0]
 

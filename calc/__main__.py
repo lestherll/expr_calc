@@ -15,5 +15,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     calculator: Calc = Calc()
-    print(not args.mode)
     calculator.repl(infix=not args.mode)

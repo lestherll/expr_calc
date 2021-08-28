@@ -12,8 +12,8 @@ class TestCalc(TestCase):
     }
     
     def test_calc_lex_init(self):
+        """Test if program is loaded"""
         calc: Calc = Calc(program=TestCalc.programs["basic"])
-        calc.lex()
 
         expected: List[TokenVal] = [
             TokenVal(Token.NUMBER, 2),
@@ -21,11 +21,22 @@ class TestCalc(TestCase):
             TokenVal(Token.BINARY_OP, "+")
         ]
 
-        self.assertListEqual(
-            expected, calc.lexed
-        )
-    
+        self.assertEqual(TestCalc.programs["basic"], calc.program)
+
+    def test_calc_lex(self):
+        calc: Calc = Calc(program=TestCalc.programs["basic"])
+        actual_tokens: List[TokenVal] = calc.lex()
+
+        expected: List[TokenVal] = [
+            TokenVal(Token.NUMBER, 2),
+            TokenVal(Token.NUMBER, 3),
+            TokenVal(Token.BINARY_OP, "+")
+        ]
+        self.assertListEqual(expected, actual_tokens)
+        self.assertListEqual(expected, calc.lexed)
+
     def test_calc_lex_external(self):
+        """"""
         calc: Calc = Calc()
         calc.lex(program=TestCalc.programs["basic"])
 
@@ -34,19 +45,19 @@ class TestCalc(TestCase):
             TokenVal(Token.NUMBER, 3),
             TokenVal(Token.BINARY_OP, "+")
         ]
+        self.assertEqual(TestCalc.programs["basic"], calc.program)
+        self.assertListEqual(expected, calc.lexed)
 
-        self.assertListEqual(
-            expected, calc.lexed
-        )
+    # def
 
-    def test_calc_lex_external_not_inplace(self):
-        calc: Calc = Calc()
-        calc.lex(program=TestCalc.programs["basic"], inplace=False)
-
-        expected: List[TokenVal] = [
-            TokenVal(Token.NUMBER, 2),
-            TokenVal(Token.NUMBER, 3),
-            TokenVal(Token.BINARY_OP, "+")
-        ]
-
-        self.assertFalse(calc.lexed)
+    # def test_calc_lex_external_not_inplace(self):
+    #     calc: Calc = Calc()
+    #     calc.lex(program=TestCalc.programs["basic"])
+    #
+    #     expected: List[TokenVal] = [
+    #         TokenVal(Token.NUMBER, 2),
+    #         TokenVal(Token.NUMBER, 3),
+    #         TokenVal(Token.BINARY_OP, "+")
+    #     ]
+    #
+    #     self.assertFalse(calc.lexed)
