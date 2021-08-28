@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from ..calc.calc import Calc, Token, TokenVal
+from calc.calc import Calc, Token, TokenVal
 
 import pytest
 
