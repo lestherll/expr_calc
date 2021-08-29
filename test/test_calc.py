@@ -1,53 +1,37 @@
-from dataclasses import dataclass
-from typing import List
-from calc.calc import Calc, Token, TokenVal
+from calc.calc import Calc, TokenType, Token
 
 import pytest
 
 
-@dataclass(frozen=True)
-class MockProgram:
-    """Contains source code and tokens of the source in a program"""
-    source: str
-    token: List[TokenVal]
-
-
-@pytest.fixture
-def programs():
-    return {
-        "one_val": MockProgram(
-            "345",
-            [TokenVal(Token.NUMBER, 345)]
-        ),
-        "basic": MockProgram(
-            "2 3 +",
-            [
-                TokenVal(Token.NUMBER, 2),
-                TokenVal(Token.NUMBER, 3),
-                TokenVal(Token.BINARY_OP, "+")
-            ]
-        )
-    }
-
-
-def test_calc_lex_init(programs):
+def test_calc_init():
     """Test if program is loaded"""
-    calc: Calc = Calc(program=programs["basic"].source)
-    assert programs["basic"].source == calc.program
+    calc: Calc = Calc("1 + 1")
+    assert "1 + 1" == calc.program
 
 
-def test_calc_lex(programs):
-    calc: Calc = Calc(program=programs["basic"].source)
-    actual_tokens: List[TokenVal] = calc.lex()
-
-    assert programs["basic"].token == actual_tokens
-    assert programs["basic"].token == calc.lexed
-
-
-def test_calc_lex_external(programs):
-    """"""
+@pytest.mark.parametrize("source, expected_tokens", [
+    ("345", [Token(TokenType.NUMBER, 345)]),
+    ("2 3 +", [
+        Token(TokenType.NUMBER, 2),
+        Token(TokenType.NUMBER, 3),
+        Token(TokenType.BINARY_OP, "+")
+    ]),
+    ("-1^2", [
+        Token(TokenType.UNARY_OP, "-"),
+        Token(TokenType.NUMBER, 1),
+        Token(TokenType.BINARY_OP, "^"),
+        Token(TokenType.NUMBER, 2)
+    ]),
+    ("-345^2+-1", [
+        Token(TokenType.UNARY_OP, "-"),
+        Token(TokenType.NUMBER, 345),
+        Token(TokenType.BINARY_OP, "^"),
+        Token(TokenType.NUMBER, 2),
+        Token(TokenType.BINARY_OP, "+"),
+        Token(TokenType.UNARY_OP, "-"),
+        Token(TokenType.NUMBER, 1)
+    ])
+])
+def test_lex(source, expected_tokens):
     calc: Calc = Calc()
-    calc.lex(program=programs["basic"].source)
-
-    assert programs["basic"].source == calc.program
-    assert programs["basic"].token == calc.lexed
+    assert expected_tokens == calc.lex(source)
