@@ -1,5 +1,7 @@
 # Calc Interpreter
 [![Python package](https://github.com/lestherll/calc/actions/workflows/main.yml/badge.svg)](https://github.com/lestherll/calc/actions/workflows/main.yml)
+[![Python Version](https://img.shields.io/badge/python-3.7%20%7c%203.8%20%7c%203.9%20%7c%203.10-blue)](https://www.python.org/downloads/)
+
 
 A mini-language modeled after a calculator implemented in Python 3.
 The program currently only lexes basic mathematical expressions. It
