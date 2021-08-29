@@ -1,5 +1,7 @@
+from calc.errors import NoProgramLoaded
 from enum import Enum, auto
 from dataclasses import dataclass
+
 from typing import Any, List, Optional
 
 OP_LIST = {
@@ -18,7 +20,6 @@ class TokenType(Enum):
     BINARY_OP = auto()
     L_PAREN = auto()
     R_PAREN = auto()
-
 
 @dataclass(frozen=True)
 class Token:
@@ -47,7 +48,7 @@ class Calc:
         '-': lambda a: -a
     }
 
-    def __init__(self, program: str = None) -> None:
+    def __init__(self, program: str = "") -> None:
         """
         Initialise a Calc instance/object
 
@@ -80,7 +81,7 @@ class Calc:
         elif lexeme == ")":
             return TokenType.R_PAREN
 
-    def lex(self, program: str = None) -> List[Token]:
+    def lex(self, program: str = "") -> List[Token]:
         """Lexes the program given or at self.program
 
         Args:
@@ -90,7 +91,7 @@ class Calc:
             List[Token]: [description]
         """
 
-        if program is not None:
+        if program and not program.isspace():
             self.program = program
 
         tokens: List[Token] = []
@@ -137,7 +138,7 @@ class Calc:
 
         return tokens
 
-    def shunt(self, program: str = None) -> List[Token]:
+    def shunt(self, program: str = "") -> List[Token]:
         """Uses the result of the lexer to generate
         expressions from infix to postfix
 
@@ -148,7 +149,7 @@ class Calc:
             List: [description]
         """
 
-        if program is not None:
+        if program and not program.isspace():
             lexed = self.lex(program=program)
         else:
             lexed = self.lex()
@@ -191,11 +192,11 @@ class Calc:
         Returns:
             float: Result of the program
         """
-        if program:
+        if program and not program.isspace():
             self.program = program
 
-        if self.program is None:
-            raise ValueError("No program loaded")
+        if not self.program or self.program.isspace():
+            raise NoProgramLoaded("No program loaded\n")
 
         self.lex()
         if infix is True:
@@ -229,7 +230,15 @@ class Calc:
         Runs a REPL which evaluates programs and expressions
         """
         print("WELCOME TO CALCULATOR LANGUAGE!")
-        self.program = input("> ")
-        while self.program != "q":
-            print(self.eval(infix=infix), end="\n\n")
-            self.program = input("> ")
+        # self.program = 1
+        while True:
+            try:
+                self.program = input("> ")
+
+                if self.program == "q":
+                    print("goodbye")
+                    break
+
+                print(self.eval(infix=infix), end="\n\n")
+            except NoProgramLoaded as npl:
+                print(npl)
