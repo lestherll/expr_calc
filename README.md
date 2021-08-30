@@ -1,14 +1,22 @@
 # Calc Interpreter
-[![Python package](https://github.com/lestherll/calc/actions/workflows/main.yml/badge.svg)](https://github.com/lestherll/calc/actions/workflows/main.yml)
-[![Python Version](https://img.shields.io/badge/python-3.7%20%7c%203.8%20%7c%203.9%20%7c%203.10-blue)](https://www.python.org/downloads/)
-
+[![Python Package](https://github.com/lestherll/calc/actions/workflows/main.yml/badge.svg)](https://github.com/lestherll/calc/actions/workflows/main.yml)
+[![Python Version](https://img.shields.io/pypi/pyversions/expr-calc?style=plastic)](https://pypi.org/project/expr-calc/)
+[![Python Implementation](https://img.shields.io/pypi/implementation/expr-calc?style=plastic&color=green)](https://python.org/downloads)
 
 A mini-language modeled after a calculator implemented in Python 3.
 The program currently only lexes basic mathematical expressions. It
 supports infix (*using Shunting Yard Algorithm*) and postfix 
 (*Reverse Polish Notation*).
 
-## Usage
+## Installation
+The package is available in PyPI and can be installed via pip.
+```shell
+pip install expr-calc
+#or
+python3 -m pip install expr-calc
+```
+
+## Usage 
 The best way to run the program currently is to execute the REPL and
 can be done in a python file or through your terminal.
 
