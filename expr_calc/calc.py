@@ -1,4 +1,4 @@
-from calc.errors import NoProgramLoaded
+from expr_calc.errors import NoProgramLoaded
 from enum import Enum, auto
 from dataclasses import dataclass
 

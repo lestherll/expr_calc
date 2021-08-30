@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "expr_calc"
+version = "0.1.1"
+description = "Mini language modeled after a calculator"
+authors = ["lestherll <ljllacuna5@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/lestherll/expr_calc"
+repository = "https://github.com/lestherll/expr_calc"
+keywords = ["calculator", "minilanguage", "REPL"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+131228_pytest_1 = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

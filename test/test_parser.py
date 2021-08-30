@@ -1,6 +1,6 @@
 import pytest
 
-from calc.calc import Token, TokenType, Calc
+from expr_calc.calc import Token, TokenType, Calc
 
 
 @pytest.mark.parametrize("source, expected_shunted_tokens", [

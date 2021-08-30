@@ -15,15 +15,15 @@ can be done in a python file or through your terminal.
 Assuming your present working directory is inside the cloned repo, you
 can run the following command without the comment.
 ```shell
-# inside /clone_path/calc/
-python -m calc
+# inside /clone_path/expr_calc/
+python -m expr_calc
 ```
 
 Enabling postfix expression mode is also possible. Using infix expressions
 in postfix mode is currently undefined and so is using postfix expressions
 in infix mode.
 ```shell
-python -m calc --postfix
+python -m expr_calc --postfix
 ```
 
 ## Features

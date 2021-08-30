@@ -1,4 +1,4 @@
-from calc.calc import Calc
+from expr_calc.calc import Calc
 
 
 def test_calc_init():
