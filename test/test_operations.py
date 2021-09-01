@@ -48,3 +48,32 @@ def test_add(expression, result):
 def test_sub(expression, result):
     calc: Calc = Calc(expression)
     assert result == calc.eval()
+
+
+@pytest.mark.parametrize("expression, result", [
+    ("9 * 9", 81),
+    ("0.5 * 10", 5),
+    ("5 * 1.23", 6.15),
+    ("5.23 * 6.46", 33.7858),
+    ("999 * 0", 0),
+    ("-999 * 23", -22977),
+    ("-123.45 * 10", -1234.5),
+    # TODO: floating point errors
+    ("-456.78 * 2.3", -1050.594),
+    ("1.23456789 * 2.10987654", 2.60478583),
+    ("99999999 * 99999999", 9.999999800000001 * 10**15),
+    # TODO: multiply the result of a previous eval by a positive floating point number‣
+    # TODO: multiply the result of a previous eval by a positive integer‣
+    # TODO: multiply the result of a previous eval by large integer‣
+    # TODO: multiply the result of a previous eval by a many digit floating point number‣
+    # TODO: multiply result of a previous eval when the previous result is zero  
+])
+def test_multiplication(expression, result):
+    calc: Calc = Calc(expression)
+    assert result == calc.eval()
+
+# Should be able to multiply the result of a previous operation by a positive floating point number‣
+# Should be able to multiply the result of a previous operation by a positive integer‣
+# Should be able to multiply the result of a previous operation by large integer‣
+# Should be able to multiply the result of a previous operation by a many digit floating point number‣
+# Should be able to result of a previous operation when the previous result is zero
