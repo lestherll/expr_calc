@@ -8,9 +8,9 @@ from typing import List, Optional, Union
 
 class Tree:
 
-    def __init__(self, val: Token, *children: List["Tree"]) -> None:
-        self.val: Optional[Token] = val
-        self.children: List[Union[Token, Tree]] = children
+    def __init__(self, node: Token, children: List["Tree"]) -> None:
+        self.node: Optional[Token] = node
+        self.children: List[Tree] = children
         self.queue = deque()
 
     def traverse(self, queue=deque()):
@@ -19,8 +19,8 @@ class Tree:
             if not sub:
                 break
             sub.traverse(queue=queue)
-        print(self.val)
-        queue.append(self.val)
+        print(self.node)
+        queue.append(self.node)
         return queue
         # self.queue.append(self.val)
 
@@ -42,16 +42,19 @@ class Tree:
         return stack[0]
 
     def __iter__(self):
-        return iter(chain((self.val), self.children))
+        return iter(chain((self.node, ), self.children))
 
+    def __repr__(self):
+        return f"{self.node} [\n\t{self.children if self.children else ''}]"
 
-root = Tree(
-    Token(TokenType.BINARY_OP, "+"),
-    Tree(Token(TokenType.NUMBER, 12),
-         Tree(Token(TokenType.UNARY_OP, "-"), Tree(Token(TokenType.NUMBER, 23))),
-         ),
-    Tree(Token(TokenType.NUMBER, 12))
-)
+root = Tree(Token(TokenType.BINARY_OP, "-"), [
+    Tree(Token(TokenType.NUMBER, 12), []),
+    Tree(Token(TokenType.NUMBER, 12), []),
+    Tree(Token(TokenType.UNARY_OP, "-"), [
+        Tree(Token(TokenType.NUMBER, 23), [])
+    ])
+])
 
 # root.traverse()
+print(root)
 print(root.eval())
