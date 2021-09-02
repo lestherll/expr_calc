@@ -1,4 +1,5 @@
 import pytest
+import math
 
 from expr_calc.calc import Calc
 
@@ -72,8 +73,24 @@ def test_multiplication(expression, result):
     calc: Calc = Calc(expression)
     assert result == calc.eval()
 
-# Should be able to multiply the result of a previous operation by a positive floating point number‣
-# Should be able to multiply the result of a previous operation by a positive integer‣
-# Should be able to multiply the result of a previous operation by large integer‣
-# Should be able to multiply the result of a previous operation by a many digit floating point number‣
-# Should be able to result of a previous operation when the previous result is zero
+
+@pytest.mark.parametrize("expression, result", [
+    ("6 / 2", 3),
+    ("0 / 123", 0),
+    ("-1500 / 2000", -0.75),
+    ("-3.123 / 5", -0.6246),
+    ("-5 / 3.123", -1.60102466),
+    ("4.21 / 3", 1.40333333),
+    ("10 / 3.123", 3.20204931),
+    ("0.234 / 3.123", 0.0749279539),
+    ("1.23456789 / 2.10987654", 0.585137503)
+    # TODO: divide the result of a previous operation by a positive floating point number‣
+    # TODO: divide the result of a previous operation by a positive integer‣
+    # TODO: report error for division by 0‣
+    # TODO: divide two many digit floating point numbers‣
+    # TODO: to divide the result of a previous operation by a many digit floating point number‣
+    # TODO: divide the result of a previous operation by a large integer
+])
+def test_division(expression, result):
+    calc: Calc = Calc(expression)
+    assert math.isclose(result, calc.eval())
