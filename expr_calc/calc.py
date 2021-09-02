@@ -21,6 +21,7 @@ class TokenType(Enum):
     L_PAREN = auto()
     R_PAREN = auto()
 
+
 @dataclass(frozen=True)
 class Token:
     type_: TokenType
