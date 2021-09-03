@@ -1,3 +1,4 @@
+# from expr_calc.tree import Tree
 from expr_calc.errors import NoProgramLoaded
 from enum import Enum, auto
 from dataclasses import dataclass
@@ -61,6 +62,7 @@ class Calc:
 
         self.lexed = []
         self.shunted = []
+        self.tree = Tree(None, [])
 
     def tokenise(self, lexeme: str) -> Optional[TokenType]:
         """
@@ -158,31 +160,76 @@ class Calc:
         operators = []
         output = []
 
+        tree_stack = []     # used to build ast
+        temp_op_tree = []   # temporary op tree
+
+        prev_bin_op = None
         for token in lexed:
 
             if token.type_ is TokenType.NUMBER:
                 output.append(token)
+                tree_stack.append(Tree(token))
 
             elif token.type_ is TokenType.BINARY_OP:
+                # make operands child node of the bin op
+                # if bin op is the same as prev, make the
+                # prev's operands a child node of the current bin op
+
+                # check if curr bin op has less or equal
+                # precedence than ones in the operator stack
+                # if the operator stack is not empty
                 while operators and operators[-1].val in OP_LIST and OP_LIST[operators[-1].val] >= OP_LIST[token.val]:
-                    output.append(operators.pop())
+                    curr_op = operators.pop()
+                    output.append(curr_op)  # pop operators from operator stack to output
+
+                    curr_node = temp_op_tree.pop()
+                    curr_node.append_child(tree_stack.pop())
+                    curr_node.append_child(tree_stack.pop())
+                    tree_stack.append(curr_node)
                 operators.append(token)
+
+                temp_op_tree.append(Tree(token))
+
+                prev_bin_op = token.val
 
             elif token.type_ is TokenType.UNARY_OP:
                 operators.append(token)
+                temp_op_tree.append(Tree(token))
 
             elif token.type_ is TokenType.L_PAREN:
                 operators.append(token)
+                temp_op_tree.append(Tree(token))
 
             elif token.type_ is TokenType.R_PAREN:
                 while operators and operators[-1].val != "(":
                     output.append(operators.pop())
+
+                    curr_node = temp_op_tree.pop()
+                    if curr_node.node.type_ is TokenType.BINARY_OP:
+                        curr_node.append_child(tree_stack.pop())
+                        curr_node.append_child(tree_stack.pop())
+                    else:
+                        curr_node.append_child(tree_stack.pop())
+
+                    tree_stack.append(curr_node)
                 operators.pop()
+                temp_op_tree.pop()
 
         while operators:
             output.append(operators.pop())
 
-        self.shunted = list(output)
+            curr_node = temp_op_tree.pop()
+            if curr_node.node.type_ is TokenType.BINARY_OP:
+                curr_node.append_child(tree_stack.pop())
+                curr_node.append_child(tree_stack.pop())
+            else:
+                curr_node.append_child(tree_stack.pop())
+            tree_stack.append(curr_node)
+
+        self.tree = tree_stack[0]
+        self.shunted = output
+
+        self.tree.traverse()
 
         return output
 
@@ -243,3 +290,32 @@ class Calc:
                 print(self.eval(infix=infix), end="\n\n")
             except NoProgramLoaded as npl:
                 print(npl)
+
+
+class Tree:
+
+    def __init__(self, node: Optional[Token], children: List["Tree"] = None) -> None:
+        self.node: Optional[Token] = node
+        self.children: List[Tree] = children if children else []
+        self.queue = []
+
+    def set_node(self, val: Token) -> None:
+        self.node = val
+
+    def append_child(self, child: "Tree") -> None:
+        self.children.append(child)
+
+    def traverse(self, queue=None):
+        if queue is None:
+            queue = []
+
+        for sub in self.children:
+            if not sub:
+                break
+            sub.traverse(queue=queue)
+        print(self.node)
+        queue.append(self.node)
+        return queue
+
+    def __repr__(self) -> str:
+        return f"{self.node} -> {self.children} "
