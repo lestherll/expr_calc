@@ -34,4 +34,4 @@ from expr_calc.token import Token, TokenType
 ])
 def test_shunt(source, expected_shunted_tokens):
     calc: Calc = Calc()
-    assert expected_shunted_tokens == calc.shunt(source)
+    assert expected_shunted_tokens == calc.parse(source)
