@@ -1,4 +1,6 @@
 # from expr_calc.tree import Tree
+from collections import deque
+
 from expr_calc.errors import NoProgramLoaded
 from expr_calc.token import Token, TokenType
 from expr_calc.operators import OP_LIST, unary_op_map
@@ -136,14 +138,10 @@ class Calc:
                 # if the operator stack is not empty
                 while op_tree_stack and op_tree_stack[-1].node.val in OP_LIST and\
                         OP_LIST[op_tree_stack[-1].node.val] >= OP_LIST[token.val]:
-                    # curr_op = op_tree_stack.pop()
-                    # tree_stack.append(curr_op)  # pop operators from operator stack to output
 
                     curr_node = op_tree_stack.pop()
                     while tree_stack:
                         curr_node.append_child(tree_stack.pop())
-                    # curr_node.append_child(tree_stack.pop())
-                    # curr_node.append_child(tree_stack.pop())
                     tree_stack.append(curr_node)
                 op_tree_stack.append(Tree(token))
 
@@ -157,78 +155,36 @@ class Calc:
 
             elif token.type_ is TokenType.R_PAREN:
                 while op_tree_stack and op_tree_stack[-1].node.val != "(":
-                    tree_stack.append(op_tree_stack.pop())
 
                     curr_node = op_tree_stack.pop()
                     if curr_node.node.type_ is TokenType.BINARY_OP:
-                        curr_node.append_child(tree_stack.pop())
-                        curr_node.append_child(tree_stack.pop())
+                        curr_node.appendleft_child(tree_stack.pop())
+                        curr_node.appendleft_child(tree_stack.pop())
                     else:
-                        curr_node.append_child(tree_stack.pop())
+                        curr_node.appendleft_child(tree_stack.pop())
 
                     tree_stack.append(curr_node)
-                op_tree_stack.pop()
                 op_tree_stack.pop()
 
         while op_tree_stack:
 
             curr_node = op_tree_stack.pop()
             if curr_node.node.type_ is TokenType.BINARY_OP:
-                curr_node.append_child(tree_stack.pop())
-                curr_node.append_child(tree_stack.pop())
+                curr_node.appendleft_child(tree_stack.pop())
+                curr_node.appendleft_child(tree_stack.pop())
             else:
-                curr_node.append_child(tree_stack.pop())
+                curr_node.appendleft_child(tree_stack.pop())
             tree_stack.append(curr_node)
 
         self.tree = tree_stack[0]
         return tree_stack[0]
-
-    # def eval(self, program: str = "", infix: bool = True) -> float:
-    #     """
-    #     Iterate through the lexed program and evaluates it
-    #
-    #     Returns:
-    #         float: Result of the program
-    #     """
-    #     if program and not program.isspace():
-    #         self.program = program
-    #
-    #     if not self.program or self.program.isspace():
-    #         raise NoProgramLoaded("No program loaded\n")
-    #
-    #     self.lex()
-    #     if infix is True:
-    #         self.shunt()
-    #         processed = self.shunted
-    #     else:
-    #         processed = self.lexed
-    #
-    #     self.stack.clear()
-    #     unary_minus_flag: bool = False
-    #     for type_, val in processed:
-    #         if type_ is TokenType.NUMBER:
-    #             if unary_minus_flag:
-    #                 self.stack.append(-val)
-    #             else:
-    #                 self.stack.append(val)
-    #         else:
-    #             if type_ is TokenType.BINARY_OP:
-    #                 if len(self.stack) >= 2:
-    #                     a = self.stack.pop()
-    #                     b = self.stack.pop()
-    #                     res = op_map[val](a, b)
-    #                     self.stack.append(res)
-    #             elif self.stack and type_ is TokenType.UNARY_OP and val == "-":
-    #                 self.stack.append(self.stack.pop() * -1)
-    #
-    #     return self.stack[0]
 
     def eval(self) -> float:
         self.lex()
         self.parse()
         return self.tree.eval()
 
-    def repl(self, infix=True) -> None:
+    def repl(self) -> None:
         """
         Runs a REPL which evaluates programs and expressions
         """

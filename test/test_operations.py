@@ -21,7 +21,7 @@ from expr_calc.calc import Calc
 ])
 def test_add(expression, result):
     calc: Calc = Calc(expression)
-    assert result == calc.eval()
+    assert calc.eval() == result
 
 
 @pytest.mark.parametrize("expression, result", [
@@ -48,7 +48,7 @@ def test_add(expression, result):
 ])
 def test_sub(expression, result):
     calc: Calc = Calc(expression)
-    assert result == calc.eval()
+    assert calc.eval() == result
 
 
 @pytest.mark.parametrize("expression, result", [
@@ -71,7 +71,7 @@ def test_sub(expression, result):
 ])
 def test_multiplication(expression, result):
     calc: Calc = Calc(expression)
-    assert result == calc.eval()
+    assert calc.eval() == result
 
 
 @pytest.mark.parametrize("expression, result", [

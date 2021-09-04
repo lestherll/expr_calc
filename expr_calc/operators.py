@@ -10,10 +10,10 @@ OP_LIST = {
 op_map = {
     '+': lambda a, b: a + b,
     '*': lambda a, b: a * b,
-    '-': lambda a, b: b - a,
-    '/': lambda a, b: b / a,
-    '^': lambda a, b: b ** a,
-    '%': lambda a, b: b % a
+    '-': lambda a, b: a - b,
+    '/': lambda a, b: a / b,
+    '^': lambda a, b: a ** b,
+    '%': lambda a, b: a % b
 }
 
 unary_op_map = {

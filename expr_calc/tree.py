@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Iterable
+from collections import deque
 
 from expr_calc.operators import op_map
 from expr_calc.token import Token, TokenType
@@ -6,10 +7,10 @@ from expr_calc.token import Token, TokenType
 
 class Tree:
 
-    def __init__(self, node: Token, children: List["Tree"] = None) -> None:
+    def __init__(self, node: Token, children: Iterable["Tree"] = None) -> None:
         self.node: Token = node
-        self.children: List[Tree] = children if children else []
-        self.queue = []
+        self.children: deque[Tree] = deque(children) if children else deque()
+        self.queue = deque()
 
     def set_node(self, val: Token) -> None:
         self.node = val
@@ -17,15 +18,18 @@ class Tree:
     def append_child(self, child: "Tree") -> None:
         self.children.append(child)
 
+    def appendleft_child(self, child: "Tree") -> None:
+        self.children.appendleft(child)
+
     def traverse(self, queue=None):
         if queue is None:
-            queue = []
+            queue = deque()
 
         for sub in self.children:
             if not sub:
                 break
             sub.traverse(queue=queue)
-        print(self.node)
+        # print(self.node)
         queue.append(self.node)
         return queue
 
@@ -42,5 +46,14 @@ class Tree:
         elif self.node.type_ is TokenType.UNARY_OP and self.node.val == "-":
             return self.children[0].eval() * -1
 
+    def __eq__(self, other: "Tree"):
+        if not isinstance(other, Tree):
+            return False
+        else:
+            return all([i == j for i, j in zip(self.traverse(), other.traverse())])
+
     def __repr__(self) -> str:
-        return f"{self.node} -> {self.children} "
+        if self.children:
+            return f"{self.node} -> {[child for child in self.children]} "
+        else:
+            return f"{self.node}"

@@ -55,4 +55,4 @@ from expr_calc.token import Token, TokenType
 ])
 def test_lex(source, expected_tokens):
     calc: Calc = Calc()
-    assert expected_tokens == calc.lex(source)
+    assert calc.lex(source) == expected_tokens
