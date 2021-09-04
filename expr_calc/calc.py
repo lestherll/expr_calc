@@ -1,54 +1,12 @@
 # from expr_calc.tree import Tree
 from expr_calc.errors import NoProgramLoaded
-from enum import Enum, auto
-from dataclasses import dataclass
+from expr_calc.token import Token, TokenType
+from expr_calc.operators import OP_LIST, op_map, unary_op_map
 
-from typing import Any, List, Optional
-
-OP_LIST = {
-    '+': 1,
-    '-': 1,
-    '*': 2,
-    '/': 2,
-    '%': 2,
-    '^': 3
-}
-
-
-class TokenType(Enum):
-    NUMBER = auto()
-    UNARY_OP = auto()
-    BINARY_OP = auto()
-    L_PAREN = auto()
-    R_PAREN = auto()
-
-
-@dataclass(frozen=True)
-class Token:
-    type_: TokenType
-    val: Any
-
-    def __iter__(self):
-        return iter((self.type_, self.val))
-
-    def __repr__(self) -> str:
-        return f"{str(self.type_)[10:]}: {self.val}"
+from typing import List, Optional
 
 
 class Calc:
-    op_map = {
-        '+': lambda a, b: a + b,
-        '*': lambda a, b: a * b,
-        '-': lambda a, b: b - a,
-        '/': lambda a, b: b / a,
-        '^': lambda a, b: b ** a,
-        '%': lambda a, b: b % a
-    }
-
-    unary_op_map = {
-        '+': lambda a: a,
-        '-': lambda a: -a
-    }
 
     def __init__(self, program: str = "") -> None:
         """
@@ -62,7 +20,7 @@ class Calc:
 
         self.lexed = []
         self.shunted = []
-        self.tree = Tree(None, [])
+        self.tree: Optional[Tree] = None
 
     def tokenise(self, lexeme: str) -> Optional[TokenType]:
         """
@@ -122,7 +80,7 @@ class Calc:
                         digit_flag = False
 
                 if token is TokenType.BINARY_OP:
-                    if char in Calc.unary_op_map and (not tokens or tokens[-1].type_ is not TokenType.NUMBER):
+                    if char in unary_op_map and (not tokens or tokens[-1].type_ is not TokenType.NUMBER):
                         temp_index = i
                         while temp_index+1 < program_length:
                             if self.tokenise(self.program[temp_index+1]) in\
@@ -183,8 +141,10 @@ class Calc:
                     output.append(curr_op)  # pop operators from operator stack to output
 
                     curr_node = temp_op_tree.pop()
-                    curr_node.append_child(tree_stack.pop())
-                    curr_node.append_child(tree_stack.pop())
+                    while tree_stack:
+                        curr_node.append_child(tree_stack.pop())
+                    # curr_node.append_child(tree_stack.pop())
+                    # curr_node.append_child(tree_stack.pop())
                     tree_stack.append(curr_node)
                 operators.append(token)
 
@@ -229,49 +189,55 @@ class Calc:
         self.tree = tree_stack[0]
         self.shunted = output
 
-        self.tree.traverse()
+        # self.tree.traverse()
+        x = self.tree.eval()
 
         return output
 
-    def eval(self, program: str = "", infix: bool = True) -> float:
-        """
-        Iterate through the lexed program and evaluates it
+    # def eval(self, program: str = "", infix: bool = True) -> float:
+    #     """
+    #     Iterate through the lexed program and evaluates it
+    #
+    #     Returns:
+    #         float: Result of the program
+    #     """
+    #     if program and not program.isspace():
+    #         self.program = program
+    #
+    #     if not self.program or self.program.isspace():
+    #         raise NoProgramLoaded("No program loaded\n")
+    #
+    #     self.lex()
+    #     if infix is True:
+    #         self.shunt()
+    #         processed = self.shunted
+    #     else:
+    #         processed = self.lexed
+    #
+    #     self.stack.clear()
+    #     unary_minus_flag: bool = False
+    #     for type_, val in processed:
+    #         if type_ is TokenType.NUMBER:
+    #             if unary_minus_flag:
+    #                 self.stack.append(-val)
+    #             else:
+    #                 self.stack.append(val)
+    #         else:
+    #             if type_ is TokenType.BINARY_OP:
+    #                 if len(self.stack) >= 2:
+    #                     a = self.stack.pop()
+    #                     b = self.stack.pop()
+    #                     res = op_map[val](a, b)
+    #                     self.stack.append(res)
+    #             elif self.stack and type_ is TokenType.UNARY_OP and val == "-":
+    #                 self.stack.append(self.stack.pop() * -1)
+    #
+    #     return self.stack[0]
 
-        Returns:
-            float: Result of the program
-        """
-        if program and not program.isspace():
-            self.program = program
-
-        if not self.program or self.program.isspace():
-            raise NoProgramLoaded("No program loaded\n")
-
+    def eval(self) -> float:
         self.lex()
-        if infix is True:
-            self.shunt()
-            processed = self.shunted
-        else:
-            processed = self.lexed
-
-        self.stack.clear()
-        unary_minus_flag: bool = False
-        for type_, val in processed:
-            if type_ is TokenType.NUMBER:
-                if unary_minus_flag:
-                    self.stack.append(-val)
-                else:
-                    self.stack.append(val)
-            else:
-                if type_ is TokenType.BINARY_OP:
-                    if len(self.stack) >= 2:
-                        a = self.stack.pop()
-                        b = self.stack.pop()
-                        res = Calc.op_map[val](a, b)
-                        self.stack.append(res)
-                elif self.stack and type_ is TokenType.UNARY_OP and val == "-":
-                    self.stack.append(self.stack.pop() * -1)
-
-        return self.stack[0]
+        self.shunt()
+        return self.tree.eval()
 
     def repl(self, infix=True) -> None:
         """
@@ -294,8 +260,8 @@ class Calc:
 
 class Tree:
 
-    def __init__(self, node: Optional[Token], children: List["Tree"] = None) -> None:
-        self.node: Optional[Token] = node
+    def __init__(self, node: Token, children: List["Tree"] = None) -> None:
+        self.node: Token = node
         self.children: List[Tree] = children if children else []
         self.queue = []
 
@@ -316,6 +282,19 @@ class Tree:
         print(self.node)
         queue.append(self.node)
         return queue
+
+    def eval(self) -> float:
+
+        # the leaf must always be a number
+        if self.node.type_ is TokenType.NUMBER:
+            return self.node.val
+
+        elif self.node.type_ is TokenType.BINARY_OP:
+            operand_a, operand_b = self.children
+            return op_map[self.node.val](operand_a.eval(), operand_b.eval())
+
+        elif self.node.type_ is TokenType.UNARY_OP and self.node.val == "-":
+            return self.children[0].eval() * -1
 
     def __repr__(self) -> str:
         return f"{self.node} -> {self.children} "
