@@ -6,7 +6,6 @@ from expr_calc.tree import Tree
 from typing import List, Optional
 
 
-
 class Calc:
 
     def __init__(self, program: str = "") -> None:
@@ -121,7 +120,6 @@ class Calc:
         tree_stack: List[Tree] = []     # used to build ast
         op_tree_stack: List[Tree] = []   # temporary op tree
 
-        prev_bin_op = None
         for token in lexed:
 
             if token.type_ is TokenType.NUMBER:
@@ -143,8 +141,6 @@ class Calc:
                         curr_node.append_child(tree_stack.pop())
                     tree_stack.append(curr_node)
                 op_tree_stack.append(Tree(token))
-
-                prev_bin_op = token.val
 
             elif token.type_ is TokenType.UNARY_OP:
                 op_tree_stack.append(Tree(token))

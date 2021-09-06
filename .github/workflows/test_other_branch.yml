@@ -2,8 +2,8 @@ name: other branches
 
 on:
   push:
-    branches:
-      - '!main'
+    branches-ignore:
+      - 'main'
     paths-ignore:
       - 'README.md'
       - 'LICENSE'

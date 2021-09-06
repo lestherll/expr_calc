@@ -1,4 +1,4 @@
-from typing import List, Iterable
+from typing import Iterable
 from collections import deque
 
 from expr_calc.operators import op_map

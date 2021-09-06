@@ -1,5 +1,4 @@
 import pytest
-import math
 
 from expr_calc.calc import Calc
 
@@ -67,7 +66,7 @@ def test_sub(expression, result):
     # TODO: multiply the result of a previous eval by a positive integer‣
     # TODO: multiply the result of a previous eval by large integer‣
     # TODO: multiply the result of a previous eval by a many digit floating point number‣
-    # TODO: multiply result of a previous eval when the previous result is zero  
+    # TODO: multiply result of a previous eval when the previous result is zero
 ])
 def test_multiplication(expression, result):
     calc: Calc = Calc(expression)
