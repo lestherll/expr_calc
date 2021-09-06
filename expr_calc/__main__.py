@@ -14,4 +14,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     calculator: Calc = Calc()
-    calculator.repl(infix=not args.mode)
+    calculator.repl()

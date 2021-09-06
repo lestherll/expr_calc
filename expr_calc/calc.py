@@ -1,23 +1,20 @@
-# from expr_calc.tree import Tree
-from collections import deque
-
-from expr_calc.errors import NoProgramLoaded
+from expr_calc.errors import NoProgramLoaded, ExcessiveDotError
 from expr_calc.token import Token, TokenType
 from expr_calc.operators import OP_LIST, unary_op_map
+from expr_calc.tree import Tree
 
 from typing import List, Optional
 
-from expr_calc.tree import Tree
 
 
 class Calc:
 
     def __init__(self, program: str = "") -> None:
         """
-        Initialise a Calc instance/object
+        Calculator Object for interpreting expressions
 
-        Args:
-            program (str, optional): Program to be interpreted. Defaults to None.
+        :param program: expression, also called program,
+         to be interpreted
         """
         self.program = program
         self.stack = []
@@ -31,11 +28,8 @@ class Calc:
         Helper function for mapping lexeme or characters or
         strings into their respective token equivalent
 
-        Args:
-            lexeme (str): string to be mapped to token
-
-        Returns:
-            TokenType: resulting token of the lexeme
+        :param lexeme: lexeme to be mapped to a token type
+        :return: TokenType equivalent of the lexeme
         """
         if lexeme.isdigit():
             return TokenType.NUMBER
@@ -47,15 +41,14 @@ class Calc:
             return TokenType.R_PAREN
 
     def lex(self, program: str = "") -> List[Token]:
-        """Lexes the program given or at self.program
-
-        Args:
-            program (str, optional): Optional program. Defaults to None.
-
-        Returns:
-            List[Token]: [description]
         """
+        Lexes the program given or at self.program. Anything that
+        is not a valid token is ignored except for literal dot (.)
+        which is used for decimal points
 
+        :param program: optional program to translated into a list of Token objects
+        :return:
+        """
         if program and not program.isspace():
             self.program = program
 
@@ -63,6 +56,7 @@ class Calc:
         program_length = len(self.program)  # will fail if self.program is None as well
         temp_digit = []  # stack for digit chars and decimal sign
         digit_flag = False  # flag when digit is encountered
+        dot_flag = False    # flag when dot is encountered
 
         for i, char in enumerate(self.program):
             token = self.tokenise(char)
@@ -75,13 +69,20 @@ class Calc:
                 digit_flag = True
 
             else:
+
+                # current token is not a digit anymore
                 if digit_flag:
-                    if char == ".":
+                    if not dot_flag and char == ".":     # possible decimal point
                         temp_digit.append(char)
+                        dot_flag = True
+                    elif dot_flag and char == ".":
+                        raise ExcessiveDotError("Wrong use of dot for numbers."
+                                                " Number can only have 1 dot")
                     else:
                         tokens.append(Token(TokenType.NUMBER, float("".join(temp_digit))))
                         temp_digit.clear()
                         digit_flag = False
+                        dot_flag = False
 
                 if token is TokenType.BINARY_OP:
                     if char in unary_op_map and (not tokens or tokens[-1].type_ is not TokenType.NUMBER):
@@ -96,7 +97,7 @@ class Calc:
                     else:
                         tokens.append(Token(TokenType.BINARY_OP, char))
 
-                if token in (TokenType.L_PAREN, TokenType.R_PAREN):
+                elif token in (TokenType.L_PAREN, TokenType.R_PAREN):
                     tokens.append(Token(token, char))
 
         self.lexed = tokens  # update self.lexed
@@ -104,14 +105,12 @@ class Calc:
         return tokens
 
     def parse(self, program: str = "") -> Tree:
-        """Uses the result of the lexer to generate
-        expressions from infix to postfix
+        """
+        Parses the program given in order to create an abstract
+        syntax tree that can be evaluated into a value
 
-        Args:
-            program (str, optional): program to be evaluated. Defaults to None.
-
-        Returns:
-            List: [description]
+        :param program: optional program to be parsed
+        :return: abstract syntax tree for the expression passed
         """
 
         if program and not program.isspace():
@@ -180,13 +179,20 @@ class Calc:
         return tree_stack[0]
 
     def eval(self) -> float:
+        """
+        Lexes the program, parses it, and the evaluates it
+        to a single value
+
+        :return: final value
+        """
         self.lex()
         self.parse()
         return self.tree.eval()
 
     def repl(self) -> None:
         """
-        Runs a REPL which evaluates programs and expressions
+        Run a REPL to evaluate expressions on the fly
+        :return: None
         """
         print("WELCOME TO CALCULATOR LANGUAGE!")
         # self.program = 1

@@ -4,6 +4,9 @@ from typing import Any
 
 
 class TokenType(Enum):
+    """
+    Possible TokenTypes for lexemes
+    """
     NUMBER = auto()
     UNARY_OP = auto()
     BINARY_OP = auto()
@@ -13,6 +16,9 @@ class TokenType(Enum):
 
 @dataclass(frozen=True)
 class Token:
+    """
+    Token that contains the token type and the value of a lexeme
+    """
     type_: TokenType
     val: Any
 

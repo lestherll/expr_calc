@@ -61,8 +61,8 @@ def test_sub(expression, result):
     ("-123.45 * 10", -1234.5),
     # TODO: floating point errors
     ("-456.78 * 2.3", -1050.594),
-    ("1.23456789 * 2.10987654", 2.60478583),
-    ("99999999 * 99999999", 9.999999800000001 * 10**15),
+    ("1.23456789 * 2.10987654", 2.6047858281),
+    ("99999999 * 99999999", 9999999800000001),
     # TODO: multiply the result of a previous eval by a positive floating point number‣
     # TODO: multiply the result of a previous eval by a positive integer‣
     # TODO: multiply the result of a previous eval by large integer‣
@@ -93,4 +93,4 @@ def test_multiplication(expression, result):
 ])
 def test_division(expression, result):
     calc: Calc = Calc(expression)
-    assert math.isclose(result, calc.eval())
+    assert calc.eval() == result
