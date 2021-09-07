@@ -10,7 +10,7 @@ on:
       - 'pyproject.toml'
       - '.gitignore'
       - '.github/workflows/publish.yml'
-      - - '.github/workflows/test_other_branch.yml'
+      - '.github/workflows/test_other_branch.yml'
 
 defaults:
   run:
