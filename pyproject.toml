@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "expr_calc"
-version = "0.1.1b"
+version = "0.1.2"
 description = "Expression interpreter modeled after a calculator"
 authors = ["lestherll <ljllacuna5@gmail.com>"]
 license = "MIT"
