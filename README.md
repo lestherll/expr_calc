@@ -1,5 +1,6 @@
 # Calc Interpreter
 [![Python Package](https://github.com/lestherll/calc/actions/workflows/main.yml/badge.svg)](https://github.com/lestherll/calc/actions/workflows/main.yml)
+[![other branches](https://github.com/lestherll/expr_calc/actions/workflows/test_other_branch.yml/badge.svg?branch=arbitrary-precision)](https://github.com/lestherll/expr_calc/actions/workflows/test_other_branch.yml)
 [![Python Version](https://img.shields.io/pypi/pyversions/expr-calc?style=plastic)](https://pypi.org/project/expr-calc/)
 [![Python Implementation](https://img.shields.io/pypi/implementation/expr-calc?style=plastic&color=green)](https://python.org/downloads)
 

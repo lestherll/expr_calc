@@ -1,3 +1,5 @@
+from decimal import Decimal, getcontext
+
 from expr_calc.errors import NoProgramLoaded, ExcessiveDotError
 from expr_calc.token import Token, TokenType
 from expr_calc.operators import OP_LIST, unary_op_map
@@ -64,7 +66,7 @@ class Calc:
 
                 # checks if current char which is a number is the last char
                 if i + 1 == program_length:
-                    tokens.append(Token(TokenType.NUMBER, float("".join(temp_digit))))
+                    tokens.append(Token(TokenType.NUMBER, Decimal("".join(temp_digit))))
                 digit_flag = True
 
             else:
@@ -78,7 +80,7 @@ class Calc:
                         raise ExcessiveDotError("Wrong use of dot for numbers."
                                                 " Number can only have 1 dot")
                     else:
-                        tokens.append(Token(TokenType.NUMBER, float("".join(temp_digit))))
+                        tokens.append(Token(TokenType.NUMBER, Decimal("".join(temp_digit))))
                         temp_digit.clear()
                         digit_flag = False
                         dot_flag = False
