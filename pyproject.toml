@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "expr_calc"
 version = "0.1.1"
-description = "Mini language modeled after a calculator"
+description = "Expression interpreter modeled after a calculator"
 authors = ["lestherll <ljllacuna5@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/lestherll/expr_calc"
 repository = "https://github.com/lestherll/expr_calc"
-keywords = ["calculator", "minilanguage", "REPL"]
+keywords = ["calculator", "interpreter", "REPL"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
