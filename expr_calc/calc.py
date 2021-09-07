@@ -1,6 +1,6 @@
 from decimal import Decimal, getcontext
 
-from expr_calc.errors import NoProgramLoaded, ExcessiveDotError
+from expr_calc.errors import NoProgramLoaded, ExcessiveDotError, TokenError
 from expr_calc.token import Token, TokenType
 from expr_calc.operators import OP_LIST, unary_op_map
 from expr_calc.tree import Tree
@@ -53,6 +53,9 @@ class Calc:
         if program and not program.isspace():
             self.program = program
 
+        if self.program.isspace() or not self.program:
+            raise NoProgramLoaded("No expression loaded\n")
+
         tokens: List[Token] = []
         program_length = len(self.program)  # will fail if self.program is None as well
         temp_digit = []  # stack for digit chars and decimal sign
@@ -61,6 +64,13 @@ class Calc:
 
         for i, char in enumerate(self.program):
             token = self.tokenise(char)
+
+            space = " " * i
+            if not token and char not in {" ", "."}:
+                raise TokenError(f"{self.program}\n"
+                                 f"{space}^^^\n"
+                                 f"Character {char} is not recognised")
+
             if token is TokenType.NUMBER:
                 temp_digit.append(char)
 
@@ -78,7 +88,7 @@ class Calc:
                         dot_flag = True
                     elif dot_flag and char == ".":
                         raise ExcessiveDotError("Wrong use of dot for numbers."
-                                                " Number can only have 1 dot")
+                                                " Number can only have 1 dot\n")
                     else:
                         tokens.append(Token(TokenType.NUMBER, Decimal("".join(temp_digit))))
                         temp_digit.clear()
@@ -173,8 +183,8 @@ class Calc:
                 curr_node.appendleft_child(tree_stack.pop())
             tree_stack.append(curr_node)
 
-        self.tree = tree_stack[0]
-        return tree_stack[0]
+        self.tree = tree_stack[0] if tree_stack else None
+        return self.tree
 
     def eval(self) -> float:
         """
@@ -192,11 +202,11 @@ class Calc:
         Run a REPL to evaluate expressions on the fly
         :return: None
         """
-        print("WELCOME TO CALCULATOR LANGUAGE!")
+        print("WELCOME TO EXPRESSION INTERPRETER!")
         # self.program = 1
         while True:
             try:
-                self.program = input("> ")
+                self.program = input("calc> ")
 
                 if self.program == "q":
                     print("goodbye")
@@ -205,3 +215,7 @@ class Calc:
                 print(self.eval(), end="\n\n")
             except NoProgramLoaded as npl:
                 print(npl)
+            except TokenError as te:
+                print(te)
+            except ExcessiveDotError as ede:
+                print(ede)
