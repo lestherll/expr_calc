@@ -12,12 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: Build and publish to TesyPyPI
-        uses: JRubics/poetry-publish@v1.8
-        with:
-          pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-          ignore_dev_requirements: "yes"
       - name: Build and publish to PyPI
         uses: JRubics/poetry-publish@v1.8
         with:
