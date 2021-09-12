@@ -7,40 +7,40 @@ from expr_calc.tree import Tree
 
 @pytest.mark.parametrize("source, expected_shunted_tokens", [
     ("1 + 2", Tree(
-        Token(TokenType.BINARY_OP, "+"), [
+        Token(TokenType.B_ADD, "+"), [
             Tree(Token(TokenType.NUMBER, 1)),
             Tree(Token(TokenType.NUMBER, 2))
         ])),
     ("-10 ^ 2", Tree(
-        Token(TokenType.UNARY_OP, "-"), [
-            Tree(Token(TokenType.BINARY_OP, "^"), [
+        Token(TokenType.U_MIN, "-"), [
+            Tree(Token(TokenType.B_EXP, "^"), [
                 Tree(Token(TokenType.NUMBER, 10)),
                 Tree(Token(TokenType.NUMBER, 2)),
             ]),
         ])),
     ("-1 ^ -2", Tree(
-        Token(TokenType.UNARY_OP, "-"), [
-            Tree(Token(TokenType.BINARY_OP, "^"), [
+        Token(TokenType.U_MIN, "-"), [
+            Tree(Token(TokenType.B_EXP, "^"), [
                 Tree(Token(TokenType.NUMBER, 1)),
-                Tree(Token(TokenType.UNARY_OP, "-"), [
+                Tree(Token(TokenType.U_MIN, "-"), [
                     Tree(Token(TokenType.NUMBER, 2)),
                 ]),
             ]),
         ])),
     ("(-1) ^ -2", Tree(
-        Token(TokenType.BINARY_OP, "^"), [
-            Tree(Token(TokenType.UNARY_OP, "-"), [
+        Token(TokenType.B_EXP, "^"), [
+            Tree(Token(TokenType.U_MIN, "-"), [
                 Tree(Token(TokenType.NUMBER, 1)),
             ]),
-            Tree(Token(TokenType.UNARY_OP, "-"), [
+            Tree(Token(TokenType.U_MIN, "-"), [
                 Tree(Token(TokenType.NUMBER, 2)),
             ]),
         ])),
     ("-2 ^ (2/3)", Tree(
-        Token(TokenType.UNARY_OP, "-"), [
-            Tree(Token(TokenType.BINARY_OP, "^"), [
+        Token(TokenType.U_MIN, "-"), [
+            Tree(Token(TokenType.B_EXP, "^"), [
                 Tree(Token(TokenType.NUMBER, 2)),
-                Tree(Token(TokenType.BINARY_OP, "/"), [
+                Tree(Token(TokenType.B_DIV, "/"), [
                     Tree(Token(TokenType.NUMBER, 2)),
                     Tree(Token(TokenType.NUMBER, 3)),
                 ]),

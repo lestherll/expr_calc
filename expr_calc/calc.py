@@ -1,7 +1,7 @@
 from decimal import Decimal, getcontext
 
 from expr_calc.errors import NoProgramLoaded, ExcessiveDotError, TokenError
-from expr_calc.token import Token, TokenType
+from expr_calc.token import Token, TokenType, B_OP_TOKENS
 from expr_calc.operators import OP_LIST, unary_op_map
 from expr_calc.tree import Tree
 from expr_calc.lexer import Lexer
@@ -59,7 +59,7 @@ class Calc:
             if token.type_ is TokenType.NUMBER:
                 tree_stack.append(Tree(token))
 
-            elif token.type_ is TokenType.BINARY_OP:
+            elif token.type_ in B_OP_TOKENS:
                 # make operands child node of the bin op
                 # if bin op is the same as prev, make the
                 # prev's operands a child node of the current bin op
@@ -76,7 +76,7 @@ class Calc:
                     tree_stack.append(curr_node)
                 op_tree_stack.append(Tree(token))
 
-            elif token.type_ is TokenType.UNARY_OP:
+            elif token.type_ in (TokenType.U_ADD, TokenType.U_MIN):
                 op_tree_stack.append(Tree(token))
 
             elif token.type_ is TokenType.L_PAREN:
@@ -86,7 +86,7 @@ class Calc:
                 while op_tree_stack and op_tree_stack[-1].node.val != "(":
 
                     curr_node = op_tree_stack.pop()
-                    if curr_node.node.type_ is TokenType.BINARY_OP:
+                    if curr_node.node.type_ in B_OP_TOKENS:
                         curr_node.appendleft_child(tree_stack.pop())
                         curr_node.appendleft_child(tree_stack.pop())
                     else:
@@ -98,7 +98,7 @@ class Calc:
         while op_tree_stack:
 
             curr_node = op_tree_stack.pop()
-            if curr_node.node.type_ is TokenType.BINARY_OP:
+            if curr_node.node.type_ in B_OP_TOKENS:
                 curr_node.appendleft_child(tree_stack.pop())
                 curr_node.appendleft_child(tree_stack.pop())
             else:

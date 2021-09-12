@@ -2,7 +2,7 @@ from typing import Iterable
 from collections import deque
 
 from expr_calc.operators import op_map
-from expr_calc.token import Token, TokenType
+from expr_calc.token import Token, TokenType, B_OP_TOKENS
 
 
 class Tree:
@@ -70,11 +70,11 @@ class Tree:
         if self.node.type_ is TokenType.NUMBER:
             return self.node.val
 
-        elif self.node.type_ is TokenType.BINARY_OP:
+        elif self.node.type_ in B_OP_TOKENS:
             operand_a, operand_b = self.children
             return op_map[self.node.val](operand_a.eval(), operand_b.eval())
 
-        elif self.node.type_ is TokenType.UNARY_OP and self.node.val == "-":
+        elif self.node.type_ is TokenType.U_MIN:
             return self.children[0].eval() * -1
 
     def __eq__(self, other: "Tree") -> bool:

@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from expr_calc.token import Token, TokenType
-from expr_calc.operators import OP_LIST, op_map, unary_op_map
+from expr_calc.token import Token, TokenType, B_OP_TOKENS
+from expr_calc.operators import OP_LIST, unary_op_map
 from expr_calc.errors import NoProgramLoaded, ExcessiveDotError, TokenError
 
 from typing import Optional, List
@@ -24,7 +24,18 @@ class Lexer:
         if lexeme.isdigit():
             return TokenType.NUMBER
         elif lexeme in OP_LIST:
-            return TokenType.BINARY_OP
+            if lexeme == "+":
+                return TokenType.B_ADD
+            elif lexeme == "-":
+                return TokenType.B_MIN
+            elif lexeme == "*":
+                return TokenType.B_MUL
+            elif lexeme == "/":
+                return TokenType.B_DIV
+            elif lexeme == "%":
+                return TokenType.B_MOD
+            elif lexeme == "^":
+                return TokenType.B_EXP
         elif lexeme == "(":
             return TokenType.L_PAREN
         elif lexeme == ")":
@@ -49,7 +60,7 @@ class Lexer:
         program_length = len(self.program)  # will fail if self.program is None as well
         temp_digit = []  # stack for digit chars and decimal sign
         digit_flag = False  # flag when digit is encountered
-        dot_flag = False    # flag when dot is encountered
+        dot_flag = False  # flag when dot is encountered
 
         for i, char in enumerate(self.program):
             token = Lexer.tokenise(char)
@@ -72,7 +83,7 @@ class Lexer:
 
                 # current token is not a digit anymore
                 if digit_flag:
-                    if not dot_flag and char == ".":     # possible decimal point
+                    if not dot_flag and char == ".":  # possible decimal point
                         temp_digit.append(char)
                         dot_flag = True
                     elif dot_flag and char == ".":
@@ -84,18 +95,21 @@ class Lexer:
                         digit_flag = False
                         dot_flag = False
 
-                if token is TokenType.BINARY_OP:
+                if token in B_OP_TOKENS:
                     if char in unary_op_map and (not tokens or tokens[-1].type_ is not TokenType.NUMBER):
                         temp_index = i
-                        while temp_index+1 < program_length:
-                            if Lexer.tokenise(self.program[temp_index+1]) in\
-                                    (TokenType.L_PAREN, TokenType.NUMBER, TokenType.BINARY_OP):
-                                tokens.append(Token(TokenType.UNARY_OP, char))
+                        while temp_index + 1 < program_length:
+                            if Lexer.tokenise(self.program[temp_index + 1]) in \
+                                    ({TokenType.L_PAREN, TokenType.NUMBER} | B_OP_TOKENS):
+                                if char == "-":
+                                    tokens.append(Token(TokenType.U_MIN, char))
+                                elif char == "+":
+                                    tokens.append(Token(TokenType.U_ADD, char))
                                 break
                             temp_index += 1
                         # temp_digit.append(char)
                     else:
-                        tokens.append(Token(TokenType.BINARY_OP, char))
+                        tokens.append(Token(token, char))
 
                 elif token in (TokenType.L_PAREN, TokenType.R_PAREN):
                     tokens.append(Token(token, char))

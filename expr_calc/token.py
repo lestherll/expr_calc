@@ -7,9 +7,22 @@ class TokenType(Enum):
     """
     Possible TokenTypes for lexemes
     """
+    # literals
     NUMBER = auto()
-    UNARY_OP = auto()
-    BINARY_OP = auto()
+
+    # binary operator tokens
+    B_ADD = auto()
+    B_MIN = auto()
+    B_MUL = auto()
+    B_DIV = auto()
+    B_EXP = auto()
+    B_MOD = auto()
+
+    # unary operator tokens
+    U_ADD = auto()
+    U_MIN = auto()
+
+    # parenthesis
     L_PAREN = auto()
     R_PAREN = auto()
 
@@ -27,3 +40,7 @@ class Token:
 
     def __repr__(self) -> str:
         return f"{str(self.type_)[10:]}: {self.val}"
+
+
+B_OP_TOKENS = {TokenType.B_EXP, TokenType.B_MIN, TokenType.B_ADD,
+               TokenType.B_DIV, TokenType.B_MUL, TokenType.B_MOD}
